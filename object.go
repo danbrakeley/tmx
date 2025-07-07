@@ -2,7 +2,6 @@ package tmx
 
 import (
 	"encoding/xml"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -113,10 +112,10 @@ type Text struct {
 	// Kerning is whether kerning should be used while rendering the text (1) or
 	// not (0)
 	Kerning int `xml:"kerning,attr"`
-	// Halign is the horizontal allignment of the text within the object (left,
+	// Halign is the horizontal alignment of the text within the object (left,
 	// center or right)
 	Halign string `xml:"halign,attr"`
-	// Valign is the vertical allignment of the text within the object (top,
+	// Valign is the vertical alignment of the text within the object (top,
 	// center or bottom)
 	Valign string `xml:"valign,attr"`
 	// CharData is the character data of the text element
@@ -137,7 +136,7 @@ type ImageLayer struct {
 	Y float64 `xml:"y,attr"`
 	// Opacity is the opacity of the layer from 0 to 1
 	Opacity float64 `xml:"opacity,attr"`
-	// Visibile indicates whether the layer is shown (1) or hidden (0)
+	// Visible indicates whether the layer is shown (1) or hidden (0)
 	Visible int `xml:"visible,attr"`
 	// Properties are the properties of the layer
 	Properties []Property `xml:"properties>property"`
@@ -197,12 +196,11 @@ func (o *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	if o.Template != "" {
 		tmpl := Template{}
 		f, err := os.Open(path.Join(path.Dir(TMXURL), o.Template))
-		defer f.Close()
 		if err != nil {
 			return err
 		}
-		b, _ := ioutil.ReadAll(f)
-		err = xml.Unmarshal(b, &tmpl)
+		defer f.Close()
+		err = xml.NewDecoder(f).Decode(&tmpl)
 		if err != nil {
 			return err
 		}

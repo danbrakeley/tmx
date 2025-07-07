@@ -107,8 +107,8 @@ func TestDataUnknownEncoding(t *testing.T) {
 	if err == nil {
 		t.Errorf("Able to parse %v data without proper encoding", TMXURL)
 	}
-	if err.Error() != "Unknown Encoding" {
-		t.Errorf("Error recieved trying to parse %v was incorrect. \n Wanted: %v\nGot: %v\n", TMXURL, "Unknown Encoding", err.Error())
+	if err.Error() != "unknown encoding" {
+		t.Errorf("Error received trying to parse %v was incorrect. \n Wanted: %v\nGot: %v\n", TMXURL, "unknown encoding", err.Error())
 	}
 }
 
@@ -159,8 +159,8 @@ func TestDataUnknownCompression(t *testing.T) {
 	if err == nil {
 		t.Errorf("Able to parse %v data without proper encoding", TMXURL)
 	}
-	if err.Error() != "Unknown Compression" {
-		t.Errorf("Error recieved trying to parse %v was incorrect. \n Wanted: %v\nGot: %v\n", TMXURL, "Unknown Encoding", err.Error())
+	if err.Error() != "unknown compression" {
+		t.Errorf("Error received trying to parse %v was incorrect. \n Wanted: %v\nGot: %v\n", TMXURL, "unknown compression", err.Error())
 	}
 }
 

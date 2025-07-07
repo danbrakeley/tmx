@@ -25,7 +25,7 @@ type Layer struct {
 	// OffsetY is the rendering offset for this layer in pixels.
 	OffsetY float64 `xml:"offsety,attr,omitempty"`
 	// Properties are the properties of the layer
-	Properties []Property `xml:"properties,omitempty>property"`
+	Properties []Property `xml:"properties>property"`
 	// Data is any data for the layer
 	Data []Data `xml:"data"`
 }

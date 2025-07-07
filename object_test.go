@@ -24,18 +24,18 @@ func TestObjectExternal(t *testing.T) {
 	}{
 		objGroup: ObjectGroup{
 			Objects: []Object{
-				Object{
+				{
 					ID:   1,
 					Name: "Rectangle",
 				},
-				Object{
+				{
 					ID:     3,
 					X:      26,
 					Y:      5,
 					Width:  15,
 					Height: 40,
 				},
-				Object{
+				{
 					ID:     7,
 					X:      0,
 					Y:      0,
@@ -47,7 +47,7 @@ func TestObjectExternal(t *testing.T) {
 		},
 		group: Group{
 			ImageLayers: []ImageLayer{
-				ImageLayer{
+				{
 					Name:    "Image Layer 1",
 					OffsetX: 5,
 					OffsetY: 5,
@@ -64,12 +64,13 @@ func TestObjectExternal(t *testing.T) {
 			return
 		}
 		for i, obj := range og.Objects {
-			if obj.ID == 1 {
+			switch obj.ID {
+			case 1:
 				if obj.Name != exp.objGroup.Objects[i].Name {
 					t.Error("Object 1 was not named Rectangle")
 					return
 				}
-			} else if obj.ID == 3 || obj.ID == 7 {
+			case 3, 7:
 				if len(obj.Ellipses) != 1 {
 					t.Errorf("Object %v did not contain an ellipse", obj.ID)
 					return
@@ -90,7 +91,7 @@ func TestObjectExternal(t *testing.T) {
 					t.Errorf("Object %v did not properly get y from the template\nWanted: %v\nGot: %v", obj.ID, exp.objGroup.Objects[i].Y, obj.Y)
 					return
 				}
-			} else {
+			default:
 				t.Errorf("Unexpected object ID: %v", obj.ID)
 				return
 			}
@@ -124,7 +125,7 @@ func TestObjectTemplateNotExist(t *testing.T) {
 	defer f.Close()
 	_, err = Parse(f)
 	if err == nil {
-		t.Error("Able to parse with non existant template file")
+		t.Error("Able to parse with non-existent template file")
 		return
 	}
 }
@@ -184,7 +185,7 @@ func TestText(t *testing.T) {
 	defer f.Close()
 	m, err := Parse(f)
 	if err != nil {
-		t.Errorf("Unble to parse text. Error was %v", err)
+		t.Errorf("Unable to parse text. Error was %v", err)
 		return
 	}
 	if m.ObjectGroups[0].Objects[0].Text[0].CharData != "Hello World" {
@@ -236,5 +237,4 @@ func TestPropertyParsed(t *testing.T) {
 a multiline value` {
 		t.Error("Unable to parse object value")
 	}
-
 }

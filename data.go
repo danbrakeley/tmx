@@ -117,7 +117,7 @@ func decodeTileData(d, encoding, compression string) ([]TileData, error) {
 		cr.FieldsPerRecord = -1
 		recs, _ := cr.ReadAll()
 		if len(recs) < 1 {
-			return tiles, errors.New("No csv records found")
+			return tiles, errors.New("no csv records found")
 		}
 		for _, rec := range recs {
 			for i, id := range rec {
@@ -147,28 +147,29 @@ func decodeTileData(d, encoding, compression string) ([]TileData, error) {
 		}
 		breader = bytes.NewReader(buff)
 	} else {
-		return tiles, errors.New("Unknown Encoding")
+		return tiles, errors.New("unknown encoding")
 	}
 	// Setup decompression if needed
 	var zreader io.Reader
-	if compression == "" {
+	switch compression {
+	case "":
 		zreader = breader
-	} else if compression == "zlib" {
+	case "zlib":
 		z, err := zlib.NewReader(breader)
 		if err != nil {
 			return tiles, err
 		}
 		defer z.Close()
 		zreader = z
-	} else if compression == "gzip" {
+	case "gzip":
 		z, err := gzip.NewReader(breader)
 		if err != nil {
 			return tiles, err
 		}
 		defer z.Close()
 		zreader = z
-	} else {
-		return tiles, errors.New("Unknown Compression")
+	default:
+		return tiles, errors.New("unknown compression")
 	}
 	var nextInt uint32
 	for {

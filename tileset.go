@@ -2,7 +2,6 @@ package tmx
 
 import (
 	"encoding/xml"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -36,15 +35,15 @@ type Tileset struct {
 	// tile overlays for terrain and collision information are rendered
 	Grid []Grid `xml:"grid"`
 	// Properties are the custom properties of the tileset
-	Properties []Property `xml:"properties,omitempty>property"`
+	Properties []Property `xml:"properties>property"`
 	// Image is the image associated with the tileset
 	Image []Image `xml:"image"`
 	// TerrainTypes are the terraintypes associated with the tileset
-	TerrainTypes []Terrain `xml:"terraintypes,omitempty>terrain"`
+	TerrainTypes []Terrain `xml:"terraintypes>terrain"`
 	// Tiles are tiles in the tileset
 	Tiles []Tile `xml:"tile"`
 	// WangSets contain the list of wang sets defined for this tileset
-	WangSets []WangSet `xml:"wangsets,omitempty>wangset"`
+	WangSets []WangSet `xml:"wangsets>wangset"`
 }
 
 // TileOffset is used to specify an offset in pixels, to be applied when
@@ -140,12 +139,11 @@ func (t *Tileset) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	if t.Source != "" {
 		t2 := Tileset{}
 		f, err := os.Open(path.Join(path.Dir(TMXURL), t.Source))
-		defer f.Close()
 		if err != nil {
 			return err
 		}
-		b, _ := ioutil.ReadAll(f)
-		err = xml.Unmarshal(b, &t2)
+		defer f.Close()
+		err = xml.NewDecoder(f).Decode(&t2)
 		if err != nil {
 			return err
 		}
