@@ -12,7 +12,7 @@ func (failReader) Read(b []byte) (int, error) {
 }
 
 func TestParseFail(t *testing.T) {
-	_, err := Parse(failReader(0))
+	_, err := Parse(failReader(0), "")
 	if err == nil {
 		t.Errorf("Parsed a reader when it threw an error")
 	}
