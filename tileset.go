@@ -138,7 +138,7 @@ func (t *Tileset) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	*t = (Tileset)(ts)
 	if t.Source != "" {
 		t2 := Tileset{}
-		f, err := os.Open(path.Join(path.Dir(TMXURL), t.Source))
+		f, err := os.Open(path.Join(path.Dir(gTMXPath), t.Source))
 		if err != nil {
 			return err
 		}

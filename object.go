@@ -195,7 +195,7 @@ func (o *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	*o = (Object)(obj)
 	if o.Template != "" {
 		tmpl := Template{}
-		f, err := os.Open(path.Join(path.Dir(TMXURL), o.Template))
+		f, err := os.Open(path.Join(path.Dir(gTMXPath), o.Template))
 		if err != nil {
 			return err
 		}
