@@ -12,6 +12,8 @@ This fork is also licensed under the [MIT License](LICENSE).
 
 - [x] Favor streaming (e.g. change `xml.Unmarshal()` to `xml.NewDecoder().Decode()`).
 - [x] Replace TMXURL with something safe to use in a concurrent environment.
+- [ ] Clean up `tmx:"ref"` tag <-- is this needed? Just look for LoadRefs on everything?
+- [ ] Build PR to submit back to Noofbiz/tmx
 
 ## Example Usage
 

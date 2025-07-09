@@ -1,3 +1,3 @@
-module github.com/Noofbiz/tmx
+module github.com/danbrakeley/tmx
 
 go 1.18
