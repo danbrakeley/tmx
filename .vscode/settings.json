@@ -9,6 +9,7 @@
     "fontfamily",
     "halign",
     "hexsidelength",
+    "iface",
     "imagelayer",
     "innerxml",
     "maph",
@@ -33,12 +34,18 @@
     "tileoffset",
     "tileset",
     "tilesets",
+    "tilesheet",
     "tilewidth",
     "tmpl",
     "TMXURL",
     "topdown",
+    "Unmarshal",
+    "wangcornercolor",
+    "wangedgecolor",
+    "wangid",
     "wangset",
     "wangsets",
+    "wangtile",
     "zreader"
   ]
 }

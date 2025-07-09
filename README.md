@@ -11,7 +11,7 @@ This fork is also licensed under the [MIT License](LICENSE).
 ## Goals of this fork
 
 - [x] Favor streaming (e.g. change `xml.Unmarshal()` to `xml.NewDecoder().Decode()`).
-- [ ] Replace the global gTMXPath (née TMXURL) with something safe to use in a concurrent environment.
+- [x] Replace TMXURL with something safe to use in a concurrent environment.
 
 ## Example Usage
 
