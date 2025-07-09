@@ -58,7 +58,7 @@ type Object struct {
 	// Visible is whether the object is shown (1) or hidden (0)
 	Visible int `xml:"visible,attr"`
 	// Template is a reference to a template file
-	Template string `xml:"template,attr"`
+	Template string `xml:"template,attr" tmx:"ref"`
 	// Properties are the properties of the object
 	Properties []Property `xml:"properties>property"`
 	// Ellipses are any elliptical shapes
@@ -193,63 +193,72 @@ func (o *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		return err
 	}
 	*o = (Object)(obj)
-	if o.Template != "" {
-		tmpl := Template{}
-		f, err := os.Open(path.Join(path.Dir(gTMXPath), o.Template))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		err = xml.NewDecoder(f).Decode(&tmpl)
-		if err != nil {
-			return err
-		}
-		if len(o.Ellipses) == 0 {
-			o.Ellipses = tmpl.Objects[0].Ellipses
-		}
-		if o.GID == 0 {
-			o.GID = tmpl.Objects[0].GID
-		}
-		if o.Height == 0 {
-			o.Height = tmpl.Objects[0].Height
-		}
-		if len(o.Images) == 0 {
-			o.Images = tmpl.Objects[0].Images
-		}
-		if o.Name == "" {
-			o.Name = tmpl.Objects[0].Name
-		}
-		if len(o.Polygons) == 0 {
-			o.Polygons = tmpl.Objects[0].Polygons
-		}
-		if len(o.Polylines) == 0 {
-			o.Polylines = tmpl.Objects[0].Polylines
-		}
-		if len(o.Properties) == 0 {
-			o.Properties = tmpl.Objects[0].Properties
-		}
-		if o.Rotation == 0 {
-			o.Rotation = tmpl.Objects[0].Rotation
-		}
-		if len(o.Text) == 0 {
-			o.Text = tmpl.Objects[0].Text
-		}
-		if o.Type == "" {
-			o.Type = tmpl.Objects[0].Type
-		}
-		if o.Visible == 1 {
-			o.Visible = tmpl.Objects[0].Visible
-		}
-		if o.Width == 0 {
-			o.Width = tmpl.Objects[0].Width
-		}
-		if o.X == 0 {
-			o.X = tmpl.Objects[0].X
-		}
-		if o.Y == 0 {
-			o.Y = tmpl.Objects[0].Y
-		}
+
+	return nil
+}
+
+// LoadRefs is the RefLoader implementation to load external tileset files.
+func (o *Object) LoadRefs(dir string) error {
+	if o.Template == "" {
+		return nil
 	}
+
+	tmpl := Template{}
+	f, err := os.Open(path.Join(dir, o.Template))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	err = xml.NewDecoder(f).Decode(&tmpl)
+	if err != nil {
+		return err
+	}
+	if len(o.Ellipses) == 0 {
+		o.Ellipses = tmpl.Objects[0].Ellipses
+	}
+	if o.GID == 0 {
+		o.GID = tmpl.Objects[0].GID
+	}
+	if o.Height == 0 {
+		o.Height = tmpl.Objects[0].Height
+	}
+	if len(o.Images) == 0 {
+		o.Images = tmpl.Objects[0].Images
+	}
+	if o.Name == "" {
+		o.Name = tmpl.Objects[0].Name
+	}
+	if len(o.Polygons) == 0 {
+		o.Polygons = tmpl.Objects[0].Polygons
+	}
+	if len(o.Polylines) == 0 {
+		o.Polylines = tmpl.Objects[0].Polylines
+	}
+	if len(o.Properties) == 0 {
+		o.Properties = tmpl.Objects[0].Properties
+	}
+	if o.Rotation == 0 {
+		o.Rotation = tmpl.Objects[0].Rotation
+	}
+	if len(o.Text) == 0 {
+		o.Text = tmpl.Objects[0].Text
+	}
+	if o.Type == "" {
+		o.Type = tmpl.Objects[0].Type
+	}
+	if o.Visible == 1 {
+		o.Visible = tmpl.Objects[0].Visible
+	}
+	if o.Width == 0 {
+		o.Width = tmpl.Objects[0].Width
+	}
+	if o.X == 0 {
+		o.X = tmpl.Objects[0].X
+	}
+	if o.Y == 0 {
+		o.Y = tmpl.Objects[0].Y
+	}
+
 	return nil
 }
 

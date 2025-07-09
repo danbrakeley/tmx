@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
+	"reflect"
 )
-
-// gTMXPath is the URL to your TMX file. If it uses external files, the sources
-// given are relative to the location of the TMX file. This should be set if
-// you use external tilesets.
-var gTMXPath string
 
 // ParseFile takes the path to a .TMX file and returns the decoded Map.
 func ParseFile(path string) (*Map, error) {
@@ -24,10 +21,102 @@ func ParseFile(path string) (*Map, error) {
 
 // Parse returns the Map encoded in the reader. Requires the original tmxFile's
 // path in order to load external files correctly.
-// Not thread safe (gTMXPath is a global variable).
 func Parse(r io.Reader, tmxPath string) (*Map, error) {
-	gTMXPath = tmxPath
 	var m Map
 	err := xml.NewDecoder(r).Decode(&m)
+	if err != nil {
+		return nil, err
+	}
+
+	err = loadRefsRecursive(reflect.ValueOf(m), path.Dir(tmxPath))
+
 	return &m, err
+}
+
+// RefLoader is an interface for loading references to other files
+type RefLoader interface {
+	LoadRefs(dir string) error
+}
+
+func loadRefsRecursive(v reflect.Value, dir string) error {
+	if !v.IsValid() {
+		return nil
+	}
+
+	// Handle pointers
+	for v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
+	t := v.Type()
+
+	switch v.Kind() {
+	case reflect.Struct:
+		hasRef := false
+		for i := 0; i < v.NumField(); i++ {
+			field := v.Field(i)
+			fieldType := t.Field(i)
+
+			if fieldType.PkgPath != "" {
+				// skip unexported fields
+				continue
+			}
+
+			tag := fieldType.Tag.Get("tmx")
+			if tag == "ref" {
+				if field.Kind() == reflect.String && len(field.String()) > 0 {
+					hasRef = true
+				}
+			}
+
+			// Recurse into the field
+			if err := loadRefsRecursive(field, dir); err != nil {
+				return err
+			}
+		}
+		if hasRef {
+			if err := callIfRefLoader(v, dir); err != nil {
+				return err
+			}
+		}
+
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < v.Len(); i++ {
+			if err := loadRefsRecursive(v.Index(i), dir); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func callIfRefLoader(v reflect.Value, dir string) error {
+	// Handle pointers
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return nil
+	}
+
+	// Try both the value and its address
+	var candidates []any
+
+	if v.CanInterface() {
+		candidates = append(candidates, v.Interface())
+	}
+	if v.CanAddr() && v.Addr().CanInterface() {
+		candidates = append(candidates, v.Addr().Interface())
+	}
+
+	for _, iface := range candidates {
+		if rl, ok := iface.(RefLoader); ok {
+			if err := rl.LoadRefs(dir); err != nil {
+				return err
+			}
+			break
+		}
+	}
+
+	return nil
 }

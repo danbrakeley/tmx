@@ -37,5 +37,4 @@ func (p *Property) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	}
 
 	return nil
-
 }

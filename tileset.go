@@ -12,7 +12,7 @@ type Tileset struct {
 	// to the first tile in this tileset)
 	FirstGID uint32 `xml:"firstgid,attr"`
 	// Source is the location of the external tilemap TSX file, if any
-	Source string `xml:"source,attr,omitempty"`
+	Source string `xml:"source,attr,omitempty" tmx:"ref"`
 	// Name is the name of the tileset
 	Name string `xml:"name,attr"`
 	// TileWidth is the (maximum) width of tiles in the tileset
@@ -128,39 +128,36 @@ type Frame struct {
 	Duration float64 `xml:"duration,attr"`
 }
 
-// UnmarshalXML implements the encoding/xml Unmarshaler interface
-func (t *Tileset) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	type tileset Tileset
-	ts := tileset{}
-	if err := d.DecodeElement(&ts, &start); err != nil {
+// LoadRefs is the RefLoader implementation to load external tileset files.
+func (t *Tileset) LoadRefs(dir string) error {
+	if t.Source == "" {
+		return nil
+	}
+
+	t2 := Tileset{}
+	f, err := os.Open(path.Join(dir, t.Source))
+	if err != nil {
 		return err
 	}
-	*t = (Tileset)(ts)
-	if t.Source != "" {
-		t2 := Tileset{}
-		f, err := os.Open(path.Join(path.Dir(gTMXPath), t.Source))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		err = xml.NewDecoder(f).Decode(&t2)
-		if err != nil {
-			return err
-		}
-		t.Name = t2.Name
-		t.TileWidth = t2.TileWidth
-		t.TileHeight = t2.TileHeight
-		t.Spacing = t2.Spacing
-		t.Margin = t2.Margin
-		t.TileCount = t2.TileCount
-		t.Columns = t2.Columns
-		t.TileOffset = t2.TileOffset
-		t.Grid = t2.Grid
-		t.Image = t2.Image
-		t.Properties = t2.Properties
-		t.TerrainTypes = t2.TerrainTypes
-		t.Tiles = t2.Tiles
-		t.WangSets = t2.WangSets
+	defer f.Close()
+	err = xml.NewDecoder(f).Decode(&t2)
+	if err != nil {
+		return err
 	}
+	t.Name = t2.Name
+	t.TileWidth = t2.TileWidth
+	t.TileHeight = t2.TileHeight
+	t.Spacing = t2.Spacing
+	t.Margin = t2.Margin
+	t.TileCount = t2.TileCount
+	t.Columns = t2.Columns
+	t.TileOffset = t2.TileOffset
+	t.Grid = t2.Grid
+	t.Image = t2.Image
+	t.Properties = t2.Properties
+	t.TerrainTypes = t2.TerrainTypes
+	t.Tiles = t2.Tiles
+	t.WangSets = t2.WangSets
+
 	return nil
 }
