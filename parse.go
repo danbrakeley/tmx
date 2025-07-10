@@ -10,25 +10,40 @@ import (
 )
 
 // ParseFile takes the path to a .TMX file and returns the decoded Map.
-func ParseFile(path string) (*Map, error) {
+func ParseFile(path string, opts ...ParseOpt) (*Map, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open %v: %w", path, err)
 	}
 	defer f.Close()
-	return Parse(f, path)
+	return Parse(f, path, opts...)
 }
 
 // Parse returns the Map encoded in the reader. Requires the original tmxFile's
 // path in order to load external files correctly.
-func Parse(r io.Reader, tmxPath string) (*Map, error) {
+func Parse(r io.Reader, tmxPath string, opts ...ParseOpt) (*Map, error) {
+	parseRefs := true
+	for _, opt := range opts {
+		switch opt := opt.(type) {
+		case optIgnoreRefs:
+			parseRefs = false
+		default:
+			return nil, fmt.Errorf("unknown parse option: %T", opt)
+		}
+	}
+
 	var m Map
 	err := xml.NewDecoder(r).Decode(&m)
 	if err != nil {
 		return nil, err
 	}
 
-	err = loadRefsRecursive(reflect.ValueOf(m), path.Dir(tmxPath))
+	if parseRefs {
+		err = loadRefsRecursive(reflect.ValueOf(m), path.Dir(tmxPath))
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return &m, err
 }

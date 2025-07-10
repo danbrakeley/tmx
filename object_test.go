@@ -169,3 +169,11 @@ a multiline value` {
 		t.Error("Unable to parse object value")
 	}
 }
+
+func Test_ParseOpt_IgnoreRefs_MissingTemplateIgnored(t *testing.T) {
+	path := "testData/objectTemplateNotExist.tmx"
+	_, err := ParseFile(path, IgnoreRefs())
+	if err != nil {
+		t.Fatalf("Expected no error, but got: %v", err)
+	}
+}
